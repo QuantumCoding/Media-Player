@@ -36,7 +36,7 @@ public class VideoInfo {
 				e.printStackTrace();
 			}	
 			
-			byte[] buffer = new byte[40960];
+			byte[] buffer = new byte[4096];
 			int read = -1;
 			
 			try {
@@ -44,7 +44,8 @@ public class VideoInfo {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			
+
+			System.out.println("Downloading Get Video Info File...");
 			while(read != -1) {
 				try {
 					out.write(buffer, 0, read);
@@ -52,8 +53,6 @@ public class VideoInfo {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				
-				System.out.println("Downloading File");
 			}
 			
 			try {
@@ -74,10 +73,10 @@ public class VideoInfo {
 		}
 		
 		StringBuilder builder = new StringBuilder();
-		while(sc.hasNext()) {
+		
+		System.out.println("Reading File...");
+		while(sc.hasNext()) 
 			builder.append(sc.nextLine());
-			System.out.println("Reading File");
-		}
 		sc.close();
 		
 		System.out.println("File Read");
@@ -123,6 +122,7 @@ public class VideoInfo {
 			e.printStackTrace();
 		}
 		
+		System.out.println("Downloading Video Info Directly...");
 		while(read != -1) {
 			for(int i = 0; i < read; i++) 
 				output += Character.toString((char) buffer[i]);
@@ -132,7 +132,6 @@ public class VideoInfo {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			System.out.println("Downloading");
 		}
 		
 		try {
