@@ -4,17 +4,15 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.util.HashMap;
 
 public class Test {
 
-	public Test(String id) {
-		String output = VideoInfo.getFromFile("C:\\Users\\Sam\\Desktop\\get_video_info", id, true);
-//		String output = VideoInfo.getDirectly(id);
+	public Test(String id) throws IOException {
+//		String output = VideoInfo.getFromFile("C:\\Users\\Sam\\Desktop\\get_video_info", id, false);
+		String output = VideoInfo.getDirectly(id);
 
 		HashMap<String, String> firstMap = new HashMap<>();
 		String[] firstANDSplit = output.split("&");
@@ -45,12 +43,8 @@ public class Test {
 		System.out.println("Status: " + status);
 		System.out.println("------------");
 		
-		try {
-			adaptive = URLDecoder.decode(adaptive, "UTF-8");
-			mapStream = URLDecoder.decode(mapStream, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
+		adaptive = Util.decode(adaptive);
+		mapStream = Util.decode(mapStream);
 		
 		String[] decodedQualityInfo = (adaptive + "," + mapStream).split(",");
 //		for(String s : decodedQualityInfo) {
@@ -78,58 +72,35 @@ public class Test {
 				return;
 			}
 			
-//			if(qualityInfo.getItag() == 22) {
-//				File file = new File("C:\\Users\\Sam\\Desktop\\" + title + ".mp4");
-//				
-//				HttpURLConnection connection = null;
-//				InputStream in = null;
-//				FileOutputStream out = null;
-//				
-//				try {
-//					connection = (HttpURLConnection) new URL(qualityInfo.getUrl()).openConnection();
-//					in = connection.getInputStream();
-//					out = new FileOutputStream(file);
-//				} catch (IOException e) {
-//					e.printStackTrace();
-//				}
-//				
-//				double length = connection.getContentLength();
-//				int num = 0;
-//				
-//				byte[] buffer = new byte[4096];
-//				int read = -1;
-//				
-//				try {
-//					read = in.read(buffer);
-//				} catch (IOException e) {
-//					e.printStackTrace();
-//				}
-//
-//				while(read != -1) {
-//					try {
-//						num += read;
-//						out.write(buffer, 0, read);
-//						read = in.read(buffer);
-//					} catch (IOException e) {
-//						e.printStackTrace();
-//					}
-//					
-//					System.out.println((num / length) * 100.0);
-//				}
-//				
-//				System.out.println("Got Video!");
-//				
-//				try {
-//					out.close();
-//					in.close();
-//				} catch (IOException e) {
-//					e.printStackTrace();
-//				}
-//			}
+			if(qualityInfo.getItag() == 22) {
+				File file = new File("C:\\Users\\Sam\\Desktop\\" + title + ".mp4");
+				
+				HttpURLConnection connection = (HttpURLConnection) new URL(qualityInfo.getUrl()).openConnection();
+				InputStream in = connection.getInputStream();
+				FileOutputStream out = new FileOutputStream(file);
+				
+				double length = connection.getContentLength();
+				int num = 0;
+				
+				byte[] buffer = new byte[4096];
+				int read = -1;
+				
+				while((read = in.read(buffer)) != -1) {
+					num += read;
+					out.write(buffer, 0, read);
+					
+					System.out.println((num / length) * 100.0);
+				}
+				
+				System.out.println("Got Video!");
+				
+				out.close();
+				in.close();
+			}
 		}
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 		new Test("Deext6875ZI");	
 	}
 }

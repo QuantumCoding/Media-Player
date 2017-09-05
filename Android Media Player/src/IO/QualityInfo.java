@@ -24,31 +24,6 @@ public class QualityInfo {
 		
 		typeExtension = type.substring(type.indexOf("/") + 1, type.indexOf(";"));
 		this.type = type.substring(0, type.indexOf("/"));
-		
-//		for(String s : info) {
-//			if(s.startsWith("itag=")) {
-//				itag = Integer.valueOf(s.substring(s.indexOf("=") + 1));
-//			} else if(s.startsWith("url=")) {
-//				try {
-//					url = URLDecoder.decode(s.substring(s.indexOf("=") + 1), "UTF-8");
-//				} catch (UnsupportedEncodingException e) {
-//					e.printStackTrace();
-//				}
-//			} else if(s.startsWith("type=")) {
-//				String type = null;
-//				try {
-//					type = URLDecoder.decode(s.substring(s.indexOf("=") + 1), "UTF-8");
-//				} catch (UnsupportedEncodingException e) {
-//					e.printStackTrace();
-//				}
-//				
-//				typeExtension = type.substring(type.indexOf("/") + 1, type.indexOf(";"));
-//				this.type = type.substring(0, type.indexOf("/"));
-//			}
-//			
-//			if(itag != -1 && url != null && type != null) 
-//				break;
-//		}
 	}
 
 	public String toString() {
