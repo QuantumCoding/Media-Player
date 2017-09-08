@@ -79,7 +79,6 @@ public class VideoInfo {
 		
 		System.out.println("Downloading Video Info Directly...");
 		while((read = in.read(buffer)) != -1) 
-			for(int i = 0; i < read; i++) 
 				output += new String(buffer, 0, read);
 		in.close();
 		
