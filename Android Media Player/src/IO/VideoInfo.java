@@ -77,12 +77,10 @@ public class VideoInfo {
 		int read = -1;
 		byte[] buffer = new byte[4096];
 		
-		read = in.read(buffer);
-		
 		System.out.println("Downloading Video Info Directly...");
 		while((read = in.read(buffer)) != -1) 
 			for(int i = 0; i < read; i++) 
-				output += Character.toString((char) buffer[i]);
+				output += new String(buffer, 0, read);
 		in.close();
 		
 		return output;
