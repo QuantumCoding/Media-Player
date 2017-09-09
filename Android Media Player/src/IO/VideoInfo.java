@@ -62,26 +62,6 @@ public class VideoInfo {
 	}
 	
 	public static String getDirectly(String id) throws IOException {
-		String output = null;
-		URL getVideoInfoURL = null;
-		
-		try {
-			getVideoInfoURL = new URL("https://www.youtube.com/get_video_info?video_id=" + id);
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		}
-		
-		HttpURLConnection connection = (HttpURLConnection) getVideoInfoURL.openConnection();
-		InputStream in = connection.getInputStream(); 
-		
-		int read = -1;
-		byte[] buffer = new byte[4096];
-		
-		System.out.println("Downloading Video Info Directly...");
-		while((read = in.read(buffer)) != -1) 
-				output += new String(buffer, 0, read);
-		in.close();
-		
-		return output;
+		return Util.downloadFileToString(new URL("https://www.youtube.com/get_video_info?video_id=" + id), true);
 	}
 }

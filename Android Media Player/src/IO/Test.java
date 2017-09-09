@@ -7,11 +7,15 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Test {
 
+	private static String justS = "Deext6875ZI", regular = "LSMJcFiOjBc", fail = "3tmd-ClpJxA";
+	
 	public Test(String id) throws IOException {
-//		String output = VideoInfo.getFromFile("C:\\Users\\Sam\\Desktop\\get_video_info", id, false);
+//		String output = VideoInfo.getFromFile("C:\\Users\\Sam\\Desktop\\get_video_info", id, true);
 		String output = VideoInfo.getDirectly(id);
 
 		HashMap<String, String> firstMap = new HashMap<>();
@@ -23,24 +27,27 @@ public class Test {
 			}
 		}
 		
-//		for(String s : firstMap.keySet()) {
-//			System.out.println(s + ", " + firstMap.get(s));
-//		}
-		String status = firstMap.get("status");
-		if(status.equals("fail")) {
-			System.err.println("Welp, don't got access to that one");
+		for(String s : firstMap.keySet()) {
+			System.out.println(s + ", " + firstMap.get(s));
+		}
+		
+		String reason = firstMap.get("reason");
+		if(reason != null) {
+			System.out.println("");
+			System.out.println("Welp, don't got access to that one");
+			System.err.println(reason);
 			return;
 		}
 		
 		String adaptive = firstMap.get("adaptive_fmts");
 		String mapStream = firstMap.get("url_encoded_fmt_stream_map");
-		String title = Util.decode(firstMap.get("title"));
+		String title = Util.decode(firstMap.get("title") == null ? "No Title" : firstMap.get("title"));
 		
 		title = title.replaceAll("[^a-zA-Z0-9.-]", " ");
 		
 		System.out.println("------------");
 		System.out.println("Title: " + title);
-		System.out.println("Status: " + status);
+		System.out.println("Reason: " + reason);
 		System.out.println("------------");
 		
 		adaptive = Util.decode(adaptive);
@@ -67,8 +74,12 @@ public class Test {
 			QualityInfo qualityInfo = new QualityInfo(s.split("&"));
 			System.out.println(qualityInfo);
 			System.out.println("------------");
+			
 			if(qualityInfo.getInfo().containsKey("s")) {
-				System.err.println("Welp, don't got access to that one");
+				System.err.println("Welp, don't got access to that one \n");
+				
+				SignatureDecoder.decode(id, qualityInfo.getInfo().get("s"));
+				
 				return;
 			}
 			
@@ -101,6 +112,6 @@ public class Test {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		new Test("Deext6875ZI");	
+		new Test(justS);
 	}
 }
