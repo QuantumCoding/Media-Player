@@ -8,29 +8,45 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
+import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
+import javafx.scene.web.WebEngine;
 
 public class Util {
-	public static String decode(String decode) {
-		try {
-			return URLDecoder.decode(decode, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
+	private static Object lock = new Object();
+	private static WebEngine engine;
+	private static Object result;
 	
-	public static Object executeJavaScript(String eval) {
-		ScriptEngineManager factory = new ScriptEngineManager();
-		ScriptEngine engine = factory.getEngineByName("JavaScript");
-	     try {
-	    	 return engine.eval(eval);
-		} catch (ScriptException e) {
-			e.printStackTrace();
+	static {
+		@SuppressWarnings("unused")
+		final JFXPanel panel = new JFXPanel();
+		Platform.runLater(new Runnable() {
+			public void run() {
+				engine = new WebEngine();
+				synchronized (lock) {
+					lock.notify();
+				}
+			}
+		});
+	}
+
+	public static Object executeJavaScript(final String eval) {
+		Platform.runLater(new Runnable() {
+			public void run() {
+				result = engine.executeScript(eval);
+				synchronized (lock) {
+					lock.notify();
+				}
+			}
+		});
+
+		synchronized (lock) {
+			try {
+				lock.wait();
+			} catch (InterruptedException e) {
+			}
 		}
-	    return null;
+		return result;
 	}
 	
 	public static String downloadFileToString(String url, boolean printProgress) throws IOException {
@@ -42,10 +58,10 @@ public class Util {
 		InputStream in = connection.getInputStream(); 
 		
 		ByteArrayOutputStream result = new ByteArrayOutputStream();
-		byte[] buffer = new byte[4096];
+		byte[] buffer = new byte[1 << 14];
 		int length;
 		
-		int sizeOfFile = connection.getContentLength();
+		double sizeOfFile = in.available();
 		double progress = 0;
 		
 		System.out.println("Downloading File...");
@@ -53,15 +69,25 @@ public class Util {
 		    result.write(buffer, 0, length);
 		    progress += length;
 		    
-		    System.out.println("Downloading");
+//		    System.out.println("Downloading");
 		    
-		    if(printProgress) 
-		    	System.out.println(((int)(progress / sizeOfFile) * 100) + "%");
+		    if(printProgress) {
+//		    	System.out.println(((int)(progress / sizeOfFile)) + "%");
+		    }
 		}
 		
 		System.out.println("Finished Dowloading!");
 		
 		in.close();
 		return result.toString("UTF-8");
+	}
+	
+	public static String decode(String decode) {
+		try {
+			return URLDecoder.decode(decode, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

@@ -42,10 +42,12 @@ public class Test {
 		String adaptive = firstMap.get("adaptive_fmts");
 		String mapStream = firstMap.get("url_encoded_fmt_stream_map");
 		String title = Util.decode(firstMap.get("title") == null ? "No Title" : firstMap.get("title"));
+		String author = Util.decode(firstMap.get("author"));
 		
-		title = title.replaceAll("[^a-zA-Z0-9.-]", " ");
+//		title = title.replaceAll("[^a-zA-Z0-9.-]", " ");
 		
 		System.out.println("------------");
+		System.out.println("Author: " + author);
 		System.out.println("Title: " + title);
 		System.out.println("Reason: " + reason);
 		System.out.println("------------");
@@ -70,23 +72,25 @@ public class Test {
 //		
 //		System.out.println("------------");
 		
+		boolean loadedJavaScript = false;
 		for(String s : decodedQualityInfo) {
 			QualityInfo qualityInfo = new QualityInfo(s.split("&"));
 			System.out.println(qualityInfo);
 			System.out.println("------------");
 			
 			if(qualityInfo.getInfo().containsKey("s")) {
-				System.err.println("Welp, don't got access to that one \n");
+				if(!loadedJavaScript) {
+					SignatureDecoder.loadJavaScript(id);
+					loadedJavaScript  = true;
+				}
 				
-				SignatureDecoder.decode(id, qualityInfo.getInfo().get("s"));
-				
-				return;
+				qualityInfo.getInfo().put("url", qualityInfo.getUrl() + "&signature=" + SignatureDecoder.decode(id, qualityInfo.getInfo().get("s")));
 			}
 			
 			if(qualityInfo.getItag() == 22) {
-				File file = new File("C:\\Users\\Sam\\Desktop\\" + title + ".mp4");
+				File file = new File("C:\\Users\\samse\\Desktop\\" + title + ".mp4");
 				
-				HttpURLConnection connection = (HttpURLConnection) new URL(qualityInfo.getUrl()).openConnection();
+				HttpURLConnection connection = (HttpURLConnection) new URL(qualityInfo.getInfo().get("url")).openConnection();
 				InputStream in = connection.getInputStream();
 				FileOutputStream out = new FileOutputStream(file);
 				
@@ -113,5 +117,6 @@ public class Test {
 	
 	public static void main(String[] args) throws IOException {
 		new Test(justS);
+		System.exit(0);
 	}
 }
