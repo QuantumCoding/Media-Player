@@ -1,6 +1,8 @@
 package IO;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -59,35 +61,65 @@ public class Util {
 		
 		ByteArrayOutputStream result = new ByteArrayOutputStream();
 		byte[] buffer = new byte[1 << 14];
-		int length;
+		int read;
 		
 		double sizeOfFile = in.available();
 		double progress = 0;
 		
 		System.out.println("Downloading File...");
-		while ((length = in.read(buffer)) != -1) {
-		    result.write(buffer, 0, length);
-		    progress += length;
+		while ((read = in.read(buffer)) != -1) {
+		    result.write(buffer, 0, read);
+		    progress += read;
 		    
-//		    System.out.println("Downloading");
-		    
-		    if(printProgress) {
-//		    	System.out.println(((int)(progress / sizeOfFile)) + "%");
-		    }
+		    if(printProgress) 
+		    	System.out.println(((int)(progress / sizeOfFile)) + "%");
 		}
 		
 		System.out.println("Finished Dowloading!");
 		
 		in.close();
+		connection.disconnect();
 		return result.toString("UTF-8");
+	}
+	
+	public static void downloadFile(String url, String location, boolean printProgress) throws IOException {
+		downloadFile(new URL(url), new File(location), printProgress);
+	}
+	
+	public static void downloadFile(URL url, File file, boolean printProgress) throws IOException {
+		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+		InputStream in = connection.getInputStream();
+		FileOutputStream out = new FileOutputStream(file);
+
+		byte[] buffer = new byte[1 << 14];
+		int read;
+		
+		double sizeOfFile = connection.getContentLength();
+		double progress = 0;
+		
+		System.out.println("Downloading File...");
+		long start = System.currentTimeMillis();
+		while((read = in.read(buffer)) != -1) {
+			out.write(buffer, 0, read);
+			progress += read;
+			
+			if(printProgress)
+				System.out.println((int)((progress / sizeOfFile) * 100)+ "%");
+		}
+		
+		System.out.println("Finished Downloading!");
+		System.err.println("Time To Download: " + ((System.currentTimeMillis() - start) / 1000.0) + " Seconds");
+		
+		out.close();
+		in.close();
+		connection.disconnect();
 	}
 	
 	public static String decode(String decode) {
 		try {
 			return URLDecoder.decode(decode, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			return null;
 		}
-		return null;
 	}
 }

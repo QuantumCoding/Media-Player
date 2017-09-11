@@ -4,10 +4,9 @@ import java.util.HashMap;
 
 public class QualityInfo {
 
-	private String url;
-	private String type, typeExtension;
 	private HashMap<String, String> info;
 	private int itag;
+	private String typeExtension;
 	
 	public QualityInfo(String[] info) {
 		this.info = new HashMap<>();
@@ -19,20 +18,23 @@ public class QualityInfo {
 		}
 
 		itag = Integer.valueOf(this.info.get("itag"));
-		type = Util.decode(this.info.get("type"));
-		url = Util.decode(this.info.get("url"));
+		
+		String type = Util.decode(this.info.get("type"));
+		
+		this.info.put("url", Util.decode(this.info.get("url")));
 		
 		typeExtension = type.substring(type.indexOf("/") + 1, type.indexOf(";"));
-		this.type = type.substring(0, type.indexOf("/"));
+		
+		this.info.put("type", type.substring(0, type.indexOf("/")));
 	}
 
 	public String toString() {
-		return "Itag: " + itag + "\nType: " + type + "\nTypeExtension: " + typeExtension + "\nURL: " + url;
+		return "Itag: " + itag + "\nType: " + info.get("type") + "\nTypeExtension: " + typeExtension + "\nURL: " + info.get("url");
 	}
 	
 	public HashMap<String, String> getInfo(){return info;}
-	public String getUrl(){return url;}
-	public String getType(){return type;}
 	public String getTypeExtension(){return typeExtension;}
+	public String get(String key) {return info.get(key);}
+	
 	public int getItag(){return itag;}
 }
