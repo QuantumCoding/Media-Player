@@ -44,8 +44,8 @@ public class Test {
 		
 		String adaptive = null;  
 		String mapStream = null; 
-		String title;     
-		String author;    
+		String title = null;     
+		String author = null;    
 		
 		boolean decodeAdaptive = true, decodeMap = true;
 		
@@ -71,9 +71,19 @@ public class Test {
 				decodeMap = false;
 				System.out.println(mapStream);
 			}
+
+			method = Pattern.compile("\"title\":\"([^\"]*)\"");
+			match = method.matcher(html);
+			if(match.find()) {
+				title = match.group(1);
+			}
 			
-			title = "Default Title";
-			author = "Default Author";
+			
+			method = Pattern.compile("\"author\":\"([^\"]*)\"");
+			match = method.matcher(html);
+			if(match.find()) {
+				author = match.group(1);
+			}
 		} else {
 			adaptive = firstMap.get("adaptive_fmts");                                                    
 			mapStream = firstMap.get("url_encoded_fmt_stream_map");                                      
@@ -130,7 +140,7 @@ public class Test {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		new Test(fail);
+		new Test("_PBlykN4KIY");
 		System.exit(0);
 	}
 }
