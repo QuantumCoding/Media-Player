@@ -62,6 +62,6 @@ public class VideoInfo {
 	}
 	
 	public static String getDirectly(String id) throws IOException {
-		return Util.downloadFileToString(new URL("https://www.youtube.com/get_video_info?video_id=" + id), true);
+		return Util.downloadFileToString(new URL("https://www.youtube.com/get_video_info?video_id=" + id), false);
 	}
 }

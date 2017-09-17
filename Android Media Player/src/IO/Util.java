@@ -9,6 +9,8 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
@@ -121,5 +123,19 @@ public class Util {
 		} catch (UnsupportedEncodingException e) {
 			return null;
 		}
+	}
+	
+	public static StringBuffer removeUTFCharacters(String data){
+		Pattern p = Pattern.compile("\\\\u(\\p{XDigit}{4})");
+		Matcher m = p.matcher(data);
+		StringBuffer buf = new StringBuffer(data.length());
+	
+		while (m.find()) {
+			String ch = String.valueOf((char) Integer.parseInt(m.group(1), 16));
+			m.appendReplacement(buf, Matcher.quoteReplacement(ch));
+		}
+		m.appendTail(buf);
+		
+		return buf;
 	}
 }

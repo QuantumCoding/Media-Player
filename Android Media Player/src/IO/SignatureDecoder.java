@@ -10,8 +10,8 @@ public class SignatureDecoder {
 		http://www.youtube.com/watch?v=<id>
 	
 	2. Find script tag with
-		Not Java = src=\"([^\"]*player-[^\"]*\\/[^\"]*\\.js)\"
-		Java = src=\"([^\"]*player-[^\"]*\\/[^\"]*\\.js)\"
+		Not Java = src="([^"]*player-[^"]*\/[^"]*\.js)"
+		Java =     src=\"([^\"]*player-[^\"]*\\/[^\"]*\\.js)\"
 		
 	3. Download Javascript File
 	

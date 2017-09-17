@@ -2,6 +2,8 @@ package IO;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Test {
 
@@ -12,7 +14,16 @@ public class Test {
 	 * Regex:
 	 * 
 	 * \"adaptive_fmts\":\\s*\"([^\"]*)\"
+	 * "adaptive_fmts":\s*"([^"]*)"
+	 * 
 	 * \"url_encoded_fmt_stream_map\":\"([^\"]*)\"
+	 * 
+	 * remove "
+	 * split at : (gets rid of adaptive =) left with everything else
+	 * split at commas (gets list of video details)
+	 * have each split at \u0026 
+	 * Same as the rest from there
+	 * 
 	 */
 	public Test(String id) throws IOException {
 //		String output = VideoInfo.getFromFile("C:\\Users\\Sam\\Desktop\\get_video_info", id, true);
@@ -31,56 +42,95 @@ public class Test {
 //			System.out.println(s + ", " + firstMap.get(s));
 //		}
 		
+		String adaptive = null;  
+		String mapStream = null; 
+		String title;     
+		String author;    
+		
+		boolean decodeAdaptive = true, decodeMap = true;
+		
 		String reason = firstMap.get("reason");
 		if(reason != null) {
-			for(String s : firstMap.keySet())
-				System.err.println(s + ", " + firstMap.get(s));
-			return;
+			String html = Util.downloadFileToString("https://www.youtube.com/watch?v=" + id, false);
+			
+			Pattern method = Pattern.compile("\"adaptive_fmts\":\\s*\"([^\"]*)\"");
+			Matcher match = method.matcher(html);
+			if(match.find()) {
+				adaptive = match.group(1);
+				adaptive.replaceAll("\"", "");
+				adaptive = Util.removeUTFCharacters(adaptive).toString();
+//				System.out.println(adaptive);
+			}
+			
+			method = Pattern.compile("\"url_encoded_fmt_stream_map\":\"([^\"]*)\"");
+			match = method.matcher(html);
+			if(match.find()) {
+				mapStream = match.group(1);
+				mapStream.replaceAll("\"", "");
+				mapStream = Util.removeUTFCharacters(mapStream).toString();
+				decodeMap = false;
+				System.out.println(mapStream);
+			}
+			
+			title = "Default Title";
+			author = "Default Author";
+		} else {
+			adaptive = firstMap.get("adaptive_fmts");                                                    
+			mapStream = firstMap.get("url_encoded_fmt_stream_map");                                      
+			title = firstMap.get("title") != null ? Util.decode(firstMap.get("title")) : "Default Title";
+			author = firstMap.get("author") != null ? Util.decode(firstMap.get("author")) : null;        
 		}
 		
-		String adaptive = firstMap.get("adaptive_fmts");
-		String mapStream = firstMap.get("url_encoded_fmt_stream_map");
-		String title = firstMap.get("title") != null ? Util.decode(firstMap.get("title")) : "Default Title";
-		String author = firstMap.get("author") != null ? Util.decode(firstMap.get("author")) : null;
 		
 		title = title.replaceAll("[\\\\\\/\\:\\*\\?\\\"\\<\\>\\|]", " ");
 		
 		System.out.println("------------");
 		System.out.println("Author: " + author);
 		System.out.println("Title: " + title);
-		System.out.println("Reason: " + reason);
 		System.out.println("------------");
 		
-		adaptive = Util.decode(adaptive);
-		mapStream = Util.decode(mapStream);
+		if(decodeAdaptive)
+			adaptive = Util.decode(adaptive);
+		if(decodeMap)
+			mapStream = Util.decode(mapStream);
 		
 		String[] decodedQualityInfo = (adaptive + "," + mapStream).split(",");
 		
+//		for(String s : decodedQualityInfo) {
+//			System.out.println(s);
+//		}
+		
 		boolean loadedJavaScript = false;
 		for(String s : decodedQualityInfo) {
-			QualityInfo qualityInfo = new QualityInfo(s.split("&"));
-			System.out.println(qualityInfo);
-			System.out.println("------------");
-			
-			if(qualityInfo.getInfo().containsKey("s")) {
-				if(!loadedJavaScript) {
-					SignatureDecoder.loadJavaScript(id);
-					loadedJavaScript  = true;
+			if(s != null) {
+				String[] temp = s.split("&");
+				
+				if(temp.length > 1) {
+					QualityInfo qualityInfo = new QualityInfo(temp);
+					System.out.println(qualityInfo);
+					System.out.println("------------");
+					
+					if(qualityInfo.getInfo().containsKey("s")) {
+						if(!loadedJavaScript) {
+							SignatureDecoder.loadJavaScript(id);
+							loadedJavaScript  = true;
+						}
+						
+						qualityInfo.getInfo().put("url", qualityInfo.get("url") + "&signature=" + SignatureDecoder.decode(id, qualityInfo.get("s")));
+					}
+					
+					if(qualityInfo.getItag() == 22) {
+						Util.downloadFile(qualityInfo.get("url"), System.getProperty("user.home") + "/Desktop/" + title + "." + qualityInfo.getTypeExtension(), true);
+						
+						break;
+					}
 				}
-				
-				qualityInfo.getInfo().put("url", qualityInfo.get("url") + "&signature=" + SignatureDecoder.decode(id, qualityInfo.get("s")));
-			}
-			
-			if(qualityInfo.getItag() == 22) {
-				Util.downloadFile(qualityInfo.get("url"), System.getProperty("user.home") + "/Desktop/" + title + "." + qualityInfo.getTypeExtension(), true);
-				
-				break;
 			}
 		}
 	}
 	
 	public static void main(String[] args) throws IOException {
-		new Test("L8laWhgRRA8");
+		new Test(fail);
 		System.exit(0);
 	}
 }
