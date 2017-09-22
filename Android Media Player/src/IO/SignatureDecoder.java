@@ -40,12 +40,8 @@ public class SignatureDecoder {
 		Pattern link = Pattern.compile("src=\"([^\"]*player-[^\"]*\\/[^\"]*\\.js)\"");
 		Matcher m = link.matcher(html);
 		 
-		if(m.find()) {
+		if(m.find()) 
 			javascript = Util.downloadFileToString("https://www.youtube.com" + m.group(1), false);
-		}
-		
-//		PrintWriter writer = new PrintWriter(new File("C:\\Users\\samse\\Desktop\\JavaScript.txt"));
-//		writer.write(javascript);
 	}
 	
 	public static String decode(String id, String signature) throws IOException {
@@ -53,35 +49,24 @@ public class SignatureDecoder {
 		Matcher match = method.matcher(javascript);
 		
 		String methodName = null;
-		if(match.find()) {
+		if(match.find()) 
 			methodName = match.group(1);
-		}
 		
 		Pattern argumentPattern = Pattern.compile("function\\(([\\w\\d_]+)\\)");
 		Matcher ma = argumentPattern.matcher(javascript);
 		
 		String argument = null;
-		if(ma.find()) {
+		if(ma.find()) 
 			argument = ma.group(1);
-		}
-		
-//		System.out.println(javascript);
-//		
-//		System.out.println("------------");
-//		
-//		System.out.println(methodName);
-//		System.out.println(argument);
 		
 		int lastBracket = javascript.lastIndexOf("}");
-//		System.out.println(javascriptFile.substring(lastBracket - 20, lastBracket + 1));
 		
 		String endCode = javascript.substring(lastBracket);
 		String startCode = javascript.substring(0, lastBracket);
-//		
+
 		startCode += argument + ".decode=" + methodName + ";";
 		endCode += "_yt_player.decode(\""+ signature + "\");";
 
-//		System.out.println(startCode + endCode);
 		return (String) Util.executeJavaScript(startCode + endCode);
 	}
 	

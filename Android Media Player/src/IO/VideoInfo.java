@@ -31,10 +31,10 @@ public class VideoInfo {
 			byte[] buffer = new byte[4096];
 			int read = -1;
 			
-			System.out.println("Downloading Get Video Info File...");
+//			System.out.println("Downloading Get Video Info File...");
 			while((read = in.read(buffer)) != -1) 
 				out.write(buffer, 0, read);
-			System.out.println("File Downloaded To: " + path);
+//			System.out.println("File Downloaded To: " + path);
 			
 			out.close();
 			in.close();
@@ -49,12 +49,12 @@ public class VideoInfo {
 		
 		StringBuilder builder = new StringBuilder();
 		
-		System.out.println("Reading File...");
+//		System.out.println("Reading File...");
 		while(sc.hasNext()) 
 			builder.append(sc.nextLine());
 		sc.close();
 		
-		System.out.println("File Read");
+//		System.out.println("File Read");
 		
 		output = builder.toString();
 		

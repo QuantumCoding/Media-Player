@@ -5,10 +5,7 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Test {
-
-	private static String justS = "Deext6875ZI", regular = "LSMJcFiOjBc", fail = "3tmd-ClpJxA";
-	
+public class Downloader {
 	/*
 	 * If fails - pull adaptive and fmts straight outta the html
 	 * Regex:
@@ -25,7 +22,7 @@ public class Test {
 	 * Same as the rest from there
 	 * 
 	 */
-	public Test(String id) throws IOException {
+	public static HashMap<Integer, QualityInfo> Download(String id) throws IOException {
 //		String output = VideoInfo.getFromFile("C:\\Users\\Sam\\Desktop\\get_video_info", id, true);
 		String output = VideoInfo.getDirectly(id);
 
@@ -47,7 +44,7 @@ public class Test {
 		String title = null;     
 		String author = null;    
 		
-		boolean decodeAdaptive = true, decodeMap = true;
+//		boolean decodeAdaptive = true, decodeMap = true;
 		
 		String reason = firstMap.get("reason");
 		if(reason != null) {
@@ -59,7 +56,6 @@ public class Test {
 				adaptive = match.group(1);
 				adaptive.replaceAll("\"", "");
 				adaptive = Util.removeUTFCharacters(adaptive).toString();
-//				System.out.println(adaptive);
 			}
 			
 			method = Pattern.compile("\"url_encoded_fmt_stream_map\":\"([^\"]*)\"");
@@ -68,8 +64,7 @@ public class Test {
 				mapStream = match.group(1);
 				mapStream.replaceAll("\"", "");
 				mapStream = Util.removeUTFCharacters(mapStream).toString();
-				decodeMap = false;
-				System.out.println(mapStream);
+//				decodeMap = false;
 			}
 
 			method = Pattern.compile("\"title\":\"([^\"]*)\"");
@@ -77,7 +72,6 @@ public class Test {
 			if(match.find()) {
 				title = match.group(1);
 			}
-			
 			
 			method = Pattern.compile("\"author\":\"([^\"]*)\"");
 			match = method.matcher(html);
@@ -91,24 +85,25 @@ public class Test {
 			author = firstMap.get("author") != null ? Util.decode(firstMap.get("author")) : null;        
 		}
 		
-		
 		title = title.replaceAll("[\\\\\\/\\:\\*\\?\\\"\\<\\>\\|]", " ");
 		
-		System.out.println("------------");
-		System.out.println("Author: " + author);
-		System.out.println("Title: " + title);
-		System.out.println("------------");
+//		System.out.println("------------");
+//		System.out.println("Author: " + author);
+//		System.out.println("Title: " + title);
+//		System.out.println("------------");
 		
-		if(decodeAdaptive)
-			adaptive = Util.decode(adaptive);
-		if(decodeMap)
-			mapStream = Util.decode(mapStream);
+//		if(decodeAdaptive)
+//			adaptive = Util.decode(adaptive);
+//		if(decodeMap)
+//			mapStream = Util.decode(mapStream);
 		
 		String[] decodedQualityInfo = (adaptive + "," + mapStream).split(",");
 		
 //		for(String s : decodedQualityInfo) {
 //			System.out.println(s);
 //		}
+		
+		HashMap<Integer, QualityInfo> infos = new HashMap<>();
 		
 		boolean loadedJavaScript = false;
 		for(String s : decodedQualityInfo) {
@@ -117,7 +112,8 @@ public class Test {
 				
 				if(temp.length > 1) {
 					QualityInfo qualityInfo = new QualityInfo(temp);
-					System.out.println(qualityInfo);
+					infos.put(qualityInfo.getItag(), qualityInfo);
+					System.out.println(qualityInfo.getItag());
 					System.out.println("------------");
 					
 					if(qualityInfo.getInfo().containsKey("s")) {
@@ -129,18 +125,19 @@ public class Test {
 						qualityInfo.getInfo().put("url", qualityInfo.get("url") + "&signature=" + SignatureDecoder.decode(id, qualityInfo.get("s")));
 					}
 					
-					if(qualityInfo.getItag() == 22) {
-						Util.downloadFile(qualityInfo.get("url"), System.getProperty("user.home") + "/Desktop/" + title + "." + qualityInfo.getTypeExtension(), true);
-						
-						break;
-					}
+//					if(qualityInfo.getItag() == 43) {
+//						Util.downloadFile(qualityInfo.get("url"), System.getProperty("user.home") + "/Desktop/" + title + "." + qualityInfo.getTypeExtension(), true);
+//						
+//						break;
+//					}
 				}
 			}
-		}
+		}	
+		
+		return infos;
 	}
 	
 	public static void main(String[] args) throws IOException {
-		new Test("_PBlykN4KIY");
 		System.exit(0);
 	}
 }

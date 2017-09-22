@@ -21,6 +21,24 @@ public class Util {
 	private static WebEngine engine;
 	private static Object result;
 	
+	public static enum VIDEO_ITAGS { 
+		_MP4_720P_AAC_192KBPS(22),
+		_WEBM_360P_VORBIS_128KBPS(43),
+		_MP4_360p_AAC_96KBPS(18),
+		_3GP_240P_AAC_32KBPS(36),
+		_3GP_144P_AAC_24KBPS(17),
+		_AUDIO_ONLY_WEBM_160KBPS(160),
+		_AUDIO_ONLY_M4A_128KBPS(140),
+		_AUDIO_ONLY_WEBM_128KBPS(171),
+		_AUDIO_ONLY_WEBM_64KBPS(250),
+		_AUDIO_ONLY_M4A_48KBPS(139),
+		_AUDIO_ONLY_WEBM_48KBPS(249);
+		
+		private int number;
+		private VIDEO_ITAGS(int number){this.number = number;}
+		public int getNumber(){return number;}
+	}
+	
 	static {
 		@SuppressWarnings("unused")
 		final JFXPanel panel = new JFXPanel();
@@ -68,7 +86,7 @@ public class Util {
 		double sizeOfFile = in.available();
 		double progress = 0;
 		
-		System.out.println("Downloading File...");
+//		System.out.println("Downloading File...");
 		while ((read = in.read(buffer)) != -1) {
 		    result.write(buffer, 0, read);
 		    progress += read;
@@ -77,7 +95,7 @@ public class Util {
 		    	System.out.println(((int)(progress / sizeOfFile)) + "%");
 		}
 		
-		System.out.println("Finished Dowloading!");
+//		System.out.println("Finished Dowloading!");
 		
 		in.close();
 		connection.disconnect();
