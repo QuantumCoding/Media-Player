@@ -2,7 +2,9 @@ package IO;
 
 import java.util.HashMap;
 
-public class QualityInfo {
+import Interfaces.IVideoFormat;
+
+public class QualityInfo extends IVideoFormat {
 
 	private HashMap<String, String> info;
 	private int itag;
@@ -37,4 +39,14 @@ public class QualityInfo {
 	public String get(String key) {return info.get(key);}
 	
 	public int getItag(){return itag;}
+
+	@Override
+	public String getFileExt() {
+		return typeExtension;
+	}
+
+	@Override
+	public String getFormatName() {
+		return Util.VIDEO_ITAGS.lookup(itag).toString().replace("_", " ").substring(1);
+	}
 }

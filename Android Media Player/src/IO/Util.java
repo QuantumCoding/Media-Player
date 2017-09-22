@@ -37,6 +37,15 @@ public class Util {
 		private int number;
 		private VIDEO_ITAGS(int number){this.number = number;}
 		public int getNumber(){return number;}
+		
+		public static VIDEO_ITAGS lookup(int itag) {
+			for(VIDEO_ITAGS tag : values()) {
+				if(tag.number == itag)
+					return tag;
+			}
+			
+			throw new IllegalArgumentException(itag + " Is not a valid itag");
+		}
 	}
 	
 	static {
